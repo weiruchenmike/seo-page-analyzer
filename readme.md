@@ -19,10 +19,10 @@
 - JSON API + Swagger UI
 
 檢測 :
-    1. <title> 標題標籤。
-    2. <meta description>（頁面描述）。
-    3. 主要的 <h1> 來定義頁面主題 並計算 <h1> 數量。
-    4. 圖片是否有 alt 說明文字
+    1. `<title>` 標題標籤。
+    2. `<meta description>`（頁面描述）。
+    3. 主要的 `<h1>` 來定義頁面主題 並計算 `<h1>` 數量。
+    4. 圖片是否有 alt 說明文字。
     
 ## Quick Start
 
