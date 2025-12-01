@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>SEO 網頁檢測工具</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+      line-height: 1.6;
+      background: #f5f5f5;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 600;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: #2563eb;
+      color: #fff;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .error {
+      color: #b91c1c;
+      background: #fee2e2;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #e5e7eb;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+    .badge-good { background: #dcfce7; }
+    .badge-warn { background: #fee2e2; }
+    .section-title {
+      font-size: 18px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      border-left: 4px solid #2563eb;
+      padding-left: 8px;
+    }
+    pre {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>SEO 網頁檢測工具</h1>
+    <p>輸入任意網址，檢查其基本 SEO 結構（標題、描述、H1/H2、字數、圖片 alt 等）。</p>
+
+    <form method="post" action="/analyze_form">
+      <label for="url">網址：</label>
+      <input
+        id="url"
+        type="text"
+        name="url"
+        placeholder="例如：https://hhh.com.tw/calculator_request/index.html"
+        value="{{ input_url or '' }}"
+        required
+      />
+      <button type="submit">開始分析</button>
+    </form>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+  </div>
+
+  {% if result %}
+    <div class="card">
+      <div class="section-title">基本資訊</div>
+      <p><strong>URL：</strong> <a href="{{ result.url }}" target="_blank" rel="noopener">{{ result.url }}</a></p>
+      <p>
+        <strong>Title：</strong> {{ result.title or "（未設定）" }}<br>
+        <span class="tag {% if "good" in result.title_length_score %}badge-good{% else %}badge-warn{% endif %}">
+          長度評分：{{ result.title_length_score }}
+        </span>
+      </p>
+      <p>
+        <strong>Meta Description：</strong><br>
+        {{ result.meta_description or "（未設定）" }}<br>
+        <span class="tag {% if "good" in result.meta_description_length_score %}badge-good{% else %}badge-warn{% endif %}">
+          描述長度評分：{{ result.meta_description_length_score }}
+        </span>
+      </p>
+
+      <p><strong>Canonical：</strong> {{ result.canonical_url or "（未設定）" }}</p>
+
+      <div class="section-title">結構與內容</div>
+      <p><strong>H1 標題（{{ result.h1_tags|length }} 個）：</strong></p>
+      <ul>
+        {% for h1 in result.h1_tags %}
+          <li>{{ h1 }}</li>
+        {% endfor %}
+      </ul>
+
+      <p><strong>H2 標題（{{ result.h2_tags|length }} 個）：</strong></p>
+      <ul>
+        {% for h2 in result.h2_tags %}
+          <li>{{ h2 or "（空白 H2）" }}</li>
+        {% endfor %}
+      </ul>
+
+      <p>
+        <strong>頁面字數：</strong> {{ result.word_count }} 字<br>
+        <strong>圖片總數：</strong> {{ result.images_total }} 張<br>
+        <strong>缺少 alt 的圖片：</strong> {{ result.images_without_alt }} 張
+      </p>
+
+      {% if result.basic_suggestions %}
+        <div class="section-title">優化建議</div>
+        <ul>
+          {% for s in result.basic_suggestions %}
+            <li>{{ s }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>🎉 沒有明顯基礎問題，結構看起來不錯！</p>
+      {% endif %}
+
+      <div class="section-title">原始 JSON（除錯用）</div>
+      <pre>{{ result | tojson(indent=2) }}</pre>
+    </div>
+  {% endif %}
+
+</body>
+</html>
